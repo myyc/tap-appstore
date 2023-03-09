@@ -28,6 +28,11 @@ LOGGER = singer.get_logger()
 BOOKMARK_DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 TIME_EXTRACTED_FORMAT = '%Y-%m-%dT%H:%M:%S%z'
 
+DATE_COLUMNS = {
+    "end_date", "begin_date", "event_date",
+    "original_start_date", "purchase_date"
+}
+
 API_REQUEST_FIELDS = {
     'subscription_event_report': {
         'reportType': 'SUBSCRIPTION_EVENT',
@@ -147,7 +152,15 @@ def tsv_to_list(tsv):
         line_cols = line.split('\t')
         for i, column in enumerate(header):
             if i < len(line_cols):
-                line_obj[column] = line_cols[i].strip()
+                value = line_cols[i].strip()
+                if column in DATE_COLUMNS:
+                    if value.count("/") == 2:
+                        try:
+                            dt = datetime.strptime(value, "%m/%d/%Y")
+                            value = dt.strftime("%Y-%m-%d")
+                        except ValueError:
+                            pass
+                line_obj[column] = value
         data.append(line_obj)
 
     return data
