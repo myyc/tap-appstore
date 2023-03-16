@@ -153,13 +153,14 @@ def tsv_to_list(tsv):
         for i, column in enumerate(header):
             if i < len(line_cols):
                 value = line_cols[i].strip()
-                if column in DATE_COLUMNS:
-                    if value.count("/") == 2:
-                        try:
-                            dt = datetime.strptime(value, "%m/%d/%Y")
-                            value = dt.strftime("%Y-%m-%d")
-                        except ValueError:
-                            pass
+                if Context.config['convert_dates']:
+                    if column in DATE_COLUMNS:
+                        if value.count("/") == 2:
+                            try:
+                                dt = datetime.strptime(value, "%m/%d/%Y")
+                                value = dt.strftime("%Y-%m-%d")
+                            except ValueError:
+                                pass
                 line_obj[column] = value
         data.append(line_obj)
 
@@ -288,6 +289,11 @@ def main():
         catalog = discover(api)
         Context.config = args.config
         print(json.dumps(catalog, indent=2))
+
+    if args.convert_dates:
+        Context.config['convert_dates'] = True
+    else:
+        Context.config['convert_dates'] = False
 
     else:
         Context.tap_start = utils.now()
