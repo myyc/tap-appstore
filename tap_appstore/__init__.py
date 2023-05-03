@@ -284,17 +284,15 @@ def main():
         Context.config['issuer_id']
     )
 
+    if "convert_dates" not in Context.config:
+        Context.config['convert_dates'] = False
+
+
     # If discover flag was passed, run discovery mode and dump output to stdout
     if args.discover:
         catalog = discover(api)
         Context.config = args.config
         print(json.dumps(catalog, indent=2))
-
-    if args.convert_dates:
-        Context.config['convert_dates'] = True
-    else:
-        Context.config['convert_dates'] = False
-
     else:
         Context.tap_start = utils.now()
         if args.catalog:
